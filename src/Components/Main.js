@@ -1,4 +1,6 @@
 import React, {Component} from 'react';
+import {Route} from "react-router-dom";
+
 import Title from './Title';
 import Restore from "./Restore";
 import PhotoWall from "./PhotoWall";
@@ -9,14 +11,12 @@ class Main extends Component {
     constructor() {
         super();
         this.state = {
-            posts : [],
+            posts: [],
             screen: null
         };
-        this.removePhoto = this.removePhoto.bind(
-this);
+        this.removePhoto = this.removePhoto.bind(this);
         this.restorePosts = this.restorePosts.bind(this);
         this.addPhoto = this.addPhoto.bind(this);
-        this.cancelAdd = this.cancelAdd.bind(this);
     }
 
     componentDidMount() {
@@ -30,76 +30,67 @@ this);
         )
     }
 
-    componentDidUpdate(prevProps, prevState){
+    componentDidUpdate(prevProps, prevState) {
         console.log("Rerendered");
     }
 
-    removePhoto(postRemoved){
+    removePhoto(postRemoved) {
         console.log(postRemoved.description);
         this.setState((state) => ({
-            posts: state.posts.filter(post => post!==postRemoved)
+            posts: state.posts.filter(post => post !== postRemoved)
         }))
     }
 
-    restorePosts(){
+    restorePosts() {
         console.log("Posts restored");
         this.setState(() => ({
-            posts: getFromDbMock()//,
-            //screen: 'photos'
+            posts: getFromDbMock()
         }))
     }
 
-    addPhoto(){
-        console.log("A photo will be added");
-        this.setState( () => ({
-            screen: 'addPhoto'
-        }))
-        console.log("Photo in strate: " + this.state.posts.number)
-    }
+    addPhoto(postSubmitted){
+        console.log("Link: " + postSubmitted.imageLink);
+        console.log("Desc: " + postSubmitted.description);
+        this.setState(state => ({posts : state.posts.concat([postSubmitted ])}));
+        console.log("Main PhotoAdded method: " + this.state.posts.length);
 
-    cancelAdd(){
-        console.log("No more add Photo");
-        this.setState( () => ({
-            screen: 'photos'
-        }))
     }
 
     render() {
         return (
             <div>
-                {
-                    this.state.screen === 'photos' && (
+                <Route exact path="/" render={() => (
                     <div>
                         <Title title="Picktur."/>
                         <Restore onRestorePosts={this.restorePosts}/>
-                        <PhotoWall posts = {this.state.posts}
+                        <PhotoWall posts={this.state.posts}
                                    onRemovePhoto={this.removePhoto}
-                                    onAddPhoto={this.addPhoto}
-                                   />
+                                   onAddPhoto={this.addPhoto}
+                                   state = {this.state}
+                        />
                     </div>
-                    )
-                }
-                {
-                    this.state.screen === 'addPhoto' && (
+                )}/>
+
+                <Route path="/AddPhoto" render={({history}) => (
                     <div>
-                        <AddPhoto onCancelAdd={this.cancelAdd}></AddPhoto>
+                        <AddPhoto onCancelAdd={this.cancelAdd} onAddPhoto={(addedPost) => {this.addPhoto(addedPost); history.push('/')}}></AddPhoto>
                     </div>
-                    )
-                }
+                )}/>
+
             </div>)
     }
 }
 
 function getFromDbMock() {
-/* Get list of photos from Unplash
-    var result = [];
+    /* Get list of photos from Unplash
+        var result = [];
 
-    fetch('https://api.unsplash.com/photos/?client_id=2c11060ba7a444e041937b9001b157a2db38098f56c2469924133b0a3fdb3c34')
-        .then(res => res.json())
-        .then((data) => {
-        })
-        .catch(console.log);
-*/
+        fetch('https://api.unsplash.com/photos/?client_id=2c11060ba7a444e041937b9001b157a2db38098f56c2469924133b0a3fdb3c34')
+            .then(res => res.json())
+            .then((data) => {
+            })
+            .catch(console.log);
+    */
 
     return [{
         id: "0",
